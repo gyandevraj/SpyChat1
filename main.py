@@ -1,16 +1,16 @@
-from Existing_Spy import Spy_Name, Spy_Code_Name, Spy_Age
+from Existing_Spy import Spy
+from steganography.steganography import Steganography
+from datetime import datetime
 
 print "Hello!!! \nWelcome To SpyChat."
 
 STATUS_MESSAGE = ["gOOD mORNInG", "HeLLo", "NAmaStE"]
 
-friends_name = []
-friends_age = []
-friends_Code_Name = []
-friend_is_online = []
+friends = []
 
 
 def add_status(c_status):
+    global new_status
     if c_status != None:
         print "your current status is " + c_status
     else:
@@ -33,27 +33,60 @@ def add_status(c_status):
 
 
 def add_friend():
-    frnd_name = raw_input("What is your name? ")
-    frnd_age = input("What is your age? ")
-    frnd_code_name = raw_input("What is your code name? ")
-    if len(frnd_name) > 3 and 18 < frnd_age < 50 and frnd_code_name > 3:
-        friends_name.append(frnd_name)
-        friends_age.append(frnd_age)
-        friends_Code_Name.append(frnd_code_name)
-        friend_is_online.append(True)
+    frnd_detail = {"Name": raw_input("What is your name? "), "Age": input("What is your age? "),
+                   "Code_Name": raw_input("What is your code name? "), "is_online": True, "chats":[]}
+
+    if len(frnd_detail["Name"]) > 3 and 18 < frnd_detail["Age"] < 50 and frnd_detail["Code_Name"] > 3:
+
+        friends.append(frnd_detail)
+
     else:
         print "Friend's Can't be added"
-    return len(friends_name)
+
+    return len(friends)
+
+def select_frnd():
+    serial_no = 1
+    for frnd in friends:
+        print str(serial_no) + ". " + frnd["Name"]
+        serial_no = serial_no + 1
+    user_selected_friend = input("Choose Your Friend To Send or Read Message: ")
+    user_selected_friend_index = user_selected_friend - 1
+    return user_selected_friend_index
 
 
-def Start_Chat(Spy_Code_Name, Spy_Age):
-    print Spy_Code_Name + " What Do You Want To Do?"
+def send_message():
+    selected_friend = select_frnd()
+    original = raw_input("What is the name of original image: ")
+    text = raw_input("enter message: ")
+    output = "out.jpg"
+    Steganography.encode(original, output, text)
+    print "send"
+    new_chat = {"message": text,
+               "time": datetime.now(),
+               "send by me": True}
+    friends[selected_friend]['chats'].append(new_chat)
+
+
+def read_message():
+    selected_friend = select_frnd()
+    output = raw_input("Which image you want to decode? ")
+    text = Steganography.decode(output)
+    print "The decoded message is " + text
+    new_chat = {"message": text,
+               "time": datetime.now(),
+               "send by me": False}
+    friends[selected_friend]['chats'].append(new_chat)
+
+
+def Start_Chat(Spy):
+    print Spy["Code_Name"] + " What Do You Want To Do?"
 
     current_status = None
 
     Show_Menu = True
     while Show_Menu:
-        Choices = input("1. Update Status \n2. Add A Friend \n3. Send A Message \n0. Exit ")
+        Choices = input("1. Update Status \n2. Add A Friend \n3. Send A Message \n4. Read A Message \n0. Exit ")
         if Choices == 1:
 
             current_status = add_status(current_status)
@@ -63,12 +96,15 @@ def Start_Chat(Spy_Code_Name, Spy_Age):
 
             no_of_friends = add_friend()
             print "you have " + str(no_of_friends) + " friends"
-            print "your friend list is: \n" \
-                  "" +str(friends_name)
 
         elif Choices == 3:
-            Message = raw_input("Type A Message To Send. ")
-            print "Your Message \n" + Message
+            print "Select A Friend To Send Message: "
+            send_message()
+
+        elif Choices == 4:
+            print "Select A Friend To Read Message: "
+            read_message()
+
         elif Choices == 0:
             Show_Menu = False
             print "Hope You Enjoyed The Session. \nHave A Good Day..!!"
@@ -76,33 +112,42 @@ def Start_Chat(Spy_Code_Name, Spy_Age):
             print "Choose A Correct Option."
 
 
+
+
 Existing_Spy = raw_input("Are You A New User (Y/N) ")
 
+
+
 if Existing_Spy == "N".lower() or Existing_Spy == "n".upper():
-    print "Welcome Back Agent " + Spy_Name + ". \nCode Name " + Spy_Code_Name + "\nAge " + str(Spy_Age)
-    Start_Chat(Spy_Code_Name, Spy_Age)
+    print "Welcome Back Agent " + Spy["Name"] + ". \nCode Name " + Spy["Code_Name"] + "\nAge " + str(Spy["Age"])
+    Start_Chat(Spy)
 
 
 elif Existing_Spy == "Y".lower() or Existing_Spy == "y".upper():
-    Spy_Name = raw_input("What's Your Name? ")
-    if len(Spy_Name) > 3:
-        print "Welcome " + Spy_Name + " Glad to see you."
+    Spy ={
+        "Name" : "",
+        "Age" : 0,
+        "Code_Name" : ""
+    }
+    Spy["Name"] = raw_input("What's Your Name? ")
+    if len(Spy["Name"]) > 3:
+        print "Welcome " + Spy["Name"] + " Glad to see you."
 
         Spy_Salutation = raw_input("What should we call you (Mr. or Ms.)? ")
         if Spy_Salutation == "Mr.".upper() or Spy_Salutation == "Ms.".upper() or \
                         Spy_Salutation == "Mr.".lower() or Spy_Salutation == "Ms.".lower() or \
                         Spy_Salutation == "Mr.".isspace():
 
-            Spy_Name = Spy_Salutation + " " + Spy_Name
+            Spy["Name"] = Spy_Salutation + " " + Spy["Name"]
 
-            print "Alright " + Spy_Name + " " + "We Would Like To Know A Little Bit More About You..."
-            Spy_Code_Name = raw_input("Please Select Code Name For You.:-")
+            print "Alright " + Spy["Name"] + " " + "We Would Like To Know A Little Bit More About You..."
+            Spy["Code_Name"] = raw_input("Please Select Code Name For You.:-")
 
-            if 0 < len(Spy_Code_Name) < 10:
-                print "Welcome " + Spy_Code_Name
+            if 0 < len(Spy["Code_Name"]) < 10:
+                print "Welcome " + Spy["Code_Name"]
 
-                Spy_Age = input("Enter Your Age.:-")
-                if 50 > Spy_Age > 18:
+                Spy["Age"] = input("Enter Your Age.:-")
+                if 50 > Spy["Age"] > 18:
 
                     Spy_Country = raw_input("Enter Your Country Name. ")
                     if Spy_Country == "INDIA".lower() or Spy_Country == "INDIA".upper() or \
@@ -113,16 +158,16 @@ elif Existing_Spy == "Y".lower() or Existing_Spy == "y".upper():
                         Spy_Work_Field = input("Select Your Working Field."
                                                "\n1. Under Cover \n2. Analysis \n3. Technician ")
                         if Spy_Work_Field == 1:
-                            print "Welcome Agent " + Spy_Code_Name + "\n" + "You Can Leave Your Message Now."
-                            Start_Chat(Spy_Code_Name, Spy_Age)
+                            print "Welcome Agent " + Spy["Code_Name"] + "\n" + "You Can Leave Your Message Now."
+                            Start_Chat(Spy)
 
                         elif Spy_Work_Field == 2:
                             print "Now You Can Submit Your Report Here"
-                            Start_Chat(Spy_Code_Name, Spy_Age)
+                            Start_Chat(Spy)
 
                         elif Spy_Work_Field == 3:
                             print "What Is Your Problem?"
-                            Start_Chat(Spy_Code_Name, Spy_Age)
+                            Start_Chat(Spy)
                         else:
                             print "Select Your Working Field Properly."
 
